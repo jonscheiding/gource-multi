@@ -14,15 +14,21 @@ Get-ChildItem | Where-Object { $_.PSIsContainer } | %{
 
     git -C $DirectoryName pull | Out-Null
     $GitLogs = (git -C $DirectoryName log --since=$StartDateText) | Out-String
-    
+
     if ( [string]::IsNullOrEmpty($GitLogs) ) {
         Write-Host "done (no changes)."
         return
     }
-    
+    Write-Host "done."
+
     $HasAnyChanges = $true
 
-    Write-Host "done."
+    $DirectoryAlias = (git -C $DirectoryName config gourceMulti.directoryAlias) | Out-String
+    if ( [string]::IsNullOrEmpty($DirectoryAlias) ) {
+        $DirectoryAlias = $DirectoryName
+    } else {
+        $DirectoryAlias = $DirectoryAlias.Trim()
+    }
 
     gource `
         --start-date ($StartDate.ToString("yyyy-MM-dd HH:mm")) `
@@ -32,7 +38,7 @@ Get-ChildItem | Where-Object { $_.PSIsContainer } | %{
     If (Test-Path -Path $LogFileName) {
         (Get-Content "$LogFileName" | ForEach-Object {
             $Columns = $_.Split("|")
-            $Columns[3] = "/" + $DirectoryName + $Columns[3]
+            $Columns[3] = ("/{0}{1}" -f $DirectoryAlias, $Columns[3])
             return $Columns -join "|"
         }) | Out-File $LogFileName -Encoding UTF8
     }
