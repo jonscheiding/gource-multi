@@ -2,6 +2,7 @@
 
 $StartDate = (Get-Date).AddDays(-$PeriodLengthInDays)
 $StartDateText = $StartDate.ToString("yyyy-MM-dd HH:mm")
+$HasAnyChanges = $false
 
 Remove-Item *.log
 
@@ -19,6 +20,8 @@ Get-ChildItem | Where-Object { $_.PSIsContainer } | %{
         return
     }
     
+    $HasAnyChanges = $true
+
     Write-Host "done."
 
     gource `
@@ -33,6 +36,12 @@ Get-ChildItem | Where-Object { $_.PSIsContainer } | %{
             return $Columns -join "|"
         }) | Out-File $LogFileName -Encoding UTF8
     }
+}
+
+if ( ! $HasAnyChanges ) {
+    Write-Host "There were no changes during this period. Boo! Press any key to exit and go get to work."
+    [void][System.Console]::ReadKey($true)
+    exit
 }
 
 Get-Content *.log | Sort-Object { [Int]$_.Split("|")[0] } | Out-File combined.log -Encoding UTF8
