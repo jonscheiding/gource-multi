@@ -12,7 +12,7 @@ Get-ChildItem | Where-Object { $_.PSIsContainer } | %{
 
     Write-Host -NoNewLine "Processing changes for $DirectoryName ... "
 
-    git -C $DirectoryName pull | Out-Null
+    git -C $DirectoryName pull --quiet
     $GitLogs = (git -C $DirectoryName log --since=$StartDateText) | Out-String
 
     if ( [string]::IsNullOrEmpty($GitLogs) ) {
