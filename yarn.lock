@@ -5,7 +5,16 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@types/node@npm:^22.5.5":
+"@types/child-process-promise@npm:^2":
+  version: 2.2.6
+  resolution: "@types/child-process-promise@npm:2.2.6"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/78c13a4f0d93f29883e3de821e8f384e1b8e705fae8bb5f1ea0e4aac6271dfb6eaba3c5be2d804421a761c424fa843f04201262148a1e702d1bd3ef222438242
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:*, @types/node@npm:^22.5.5":
   version: 22.5.5
   resolution: "@types/node@npm:22.5.5"
   dependencies:
@@ -14,14 +23,84 @@ __metadata:
   languageName: node
   linkType: hard
 
+"child-process-promise@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "child-process-promise@npm:2.2.1"
+  dependencies:
+    cross-spawn: "npm:^4.0.2"
+    node-version: "npm:^1.0.0"
+    promise-polyfill: "npm:^6.0.1"
+  checksum: 10c0/58e65dcb67262a5ab319f63438472534b496e59a81df5cb1b2fc3e383eb4bcce4a16253c49af416579e5264949190a33c04928b13e29da41854d535c86c0f9f0
+  languageName: node
+  linkType: hard
+
+"cross-spawn@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "cross-spawn@npm:4.0.2"
+  dependencies:
+    lru-cache: "npm:^4.0.1"
+    which: "npm:^1.2.9"
+  checksum: 10c0/4de7254653b658776be8e1050473349723d2ac8bc10b912fbeb159ad32d06c7fa2135b04b896b7cbe0141d274dae9d7543cc6e5c9c919e2062e44a66c2184665
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "date-fns@npm:4.0.0"
+  checksum: 10c0/c706d29f05c28fdaea939068d688489bbc3096ef2486d1fe4a56d209c3a061ba99febae943b9562bb8ac08fe61257cf11fe74adad164adb7ba6df994e09cb99b
+  languageName: node
+  linkType: hard
+
 "gource-multi@workspace:.":
   version: 0.0.0-use.local
   resolution: "gource-multi@workspace:."
   dependencies:
+    "@types/child-process-promise": "npm:^2"
     "@types/node": "npm:^22.5.5"
+    child-process-promise: "npm:^2.2.1"
+    date-fns: "npm:^4.0.0"
     typescript: "npm:^5.6.2"
+    zod: "npm:^3.23.8"
   languageName: unknown
   linkType: soft
+
+"isexe@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "isexe@npm:2.0.0"
+  checksum: 10c0/228cfa503fadc2c31596ab06ed6aa82c9976eec2bfd83397e7eaf06d0ccf42cd1dfd6743bf9aeb01aebd4156d009994c5f76ea898d2832c1fe342da923ca457d
+  languageName: node
+  linkType: hard
+
+"lru-cache@npm:^4.0.1":
+  version: 4.1.5
+  resolution: "lru-cache@npm:4.1.5"
+  dependencies:
+    pseudomap: "npm:^1.0.2"
+    yallist: "npm:^2.1.2"
+  checksum: 10c0/1ca5306814e5add9ec63556d6fd9b24a4ecdeaef8e9cea52cbf30301e6b88c8d8ddc7cab45b59b56eb763e6c45af911585dc89925a074ab65e1502e3fe8103cf
+  languageName: node
+  linkType: hard
+
+"node-version@npm:^1.0.0":
+  version: 1.2.0
+  resolution: "node-version@npm:1.2.0"
+  checksum: 10c0/d249b92b9f15b215544586f30fbe9458e973ac61b942a6c338dc91b1e16be210cdb024b54114543d330180e588dc611aa18263999c987d7bc612c14ee4356908
+  languageName: node
+  linkType: hard
+
+"promise-polyfill@npm:^6.0.1":
+  version: 6.1.0
+  resolution: "promise-polyfill@npm:6.1.0"
+  checksum: 10c0/8fa1172b1b50efbc43f5eb8772e6a526ef70b9856f3d49172c8bea0ccee4413b29eb5d7f8b44015fe43b2d77a9db16d4c49d337b48b218661f92e5ab1c1fc672
+  languageName: node
+  linkType: hard
+
+"pseudomap@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "pseudomap@npm:1.0.2"
+  checksum: 10c0/5a91ce114c64ed3a6a553aa7d2943868811377388bb31447f9d8028271bae9b05b340fe0b6961a64e45b9c72946aeb0a4ab635e8f7cb3715ffd0ff2beeb6a679
+  languageName: node
+  linkType: hard
 
 "typescript@npm:^5.6.2":
   version: 5.6.2
@@ -47,5 +126,30 @@ __metadata:
   version: 6.19.8
   resolution: "undici-types@npm:6.19.8"
   checksum: 10c0/078afa5990fba110f6824823ace86073b4638f1d5112ee26e790155f481f2a868cc3e0615505b6f4282bdf74a3d8caad715fd809e870c2bb0704e3ea6082f344
+  languageName: node
+  linkType: hard
+
+"which@npm:^1.2.9":
+  version: 1.3.1
+  resolution: "which@npm:1.3.1"
+  dependencies:
+    isexe: "npm:^2.0.0"
+  bin:
+    which: ./bin/which
+  checksum: 10c0/e945a8b6bbf6821aaaef7f6e0c309d4b615ef35699576d5489b4261da9539f70393c6b2ce700ee4321c18f914ebe5644bc4631b15466ffbaad37d83151f6af59
+  languageName: node
+  linkType: hard
+
+"yallist@npm:^2.1.2":
+  version: 2.1.2
+  resolution: "yallist@npm:2.1.2"
+  checksum: 10c0/0b9e25aa00adf19e01d2bcd4b208aee2b0db643d9927131797b7af5ff69480fc80f1c3db738cbf3946f0bddf39d8f2d0a5709c644fd42d4aa3a4e6e786c087b5
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.23.8":
+  version: 3.23.8
+  resolution: "zod@npm:3.23.8"
+  checksum: 10c0/8f14c87d6b1b53c944c25ce7a28616896319d95bc46a9660fe441adc0ed0a81253b02b5abdaeffedbeb23bdd25a0bf1c29d2c12dd919aef6447652dd295e3e69
   languageName: node
   linkType: hard
