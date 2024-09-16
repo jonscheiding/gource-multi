@@ -7,12 +7,14 @@
     "url": "https://github.com/jonscheiding"
   },
   "scripts": {
-    "build": "tsc && npx tsx src/index.ts",
+    "build": "tsc && npx tsx src/build.ts",
     "lint": "prettier -c src && eslint src",
     "prepare": "husky"
   },
   "license": "MIT",
   "dependencies": {
+    "child-process-promise": "^2.2.1",
+    "date-fns": "^4.0.0",
     "eslint": "^9.13.0",
     "eslint-plugin-import": "^2.31.0",
     "husky": "^9.1.6",
@@ -20,10 +22,12 @@
     "prettier": "^3.3.3",
     "tsx": "^4.19.1",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.11.0"
+    "typescript-eslint": "^8.11.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "@types/child-process-promise": "^2",
     "@types/ini": "^4.1.1",
     "@types/node": "^22.7.7",
     "globals": "^15.11.0"
