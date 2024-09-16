@@ -1,5 +1,5 @@
 import { createReadStream } from "fs";
-import { readFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import { basename, dirname, resolve } from "path";
 import { createInterface } from "readline";
 import { fileURLToPath } from "url";
@@ -25,11 +25,30 @@ async function logRepo(
   logPath: string,
   startTimestamp: number | undefined,
 ) {
+  const startDate = startTimestamp
+    ? format(startTimestamp, "yyyy-LL-dd")
+    : undefined;
+
+  if (startDate) {
+    //
+    // Gource throws if there are no logs in the specified timeframe
+    // so we have to check first
+    //
+    const { stdout: gitLogs } = await exec(
+      `git log --since ${startDate} --pretty=oneline -1`,
+      {
+        cwd: repoPath,
+      },
+    );
+    if (gitLogs.trim() === "") {
+      await writeFile(logPath, "");
+      return;
+    }
+  }
+
   await exec(
     `gource ${
-      startTimestamp
-        ? `--start-date ${format(startTimestamp, "yyyy-LL-dd")}`
-        : ""
+      startDate ? `--start-date ${startDate}` : ""
     } --output-custom-log ${logPath}`,
     {
       cwd: repoPath,
@@ -48,6 +67,8 @@ async function readAndProcessLogs(
   const rl = createInterface({ input: createReadStream(logPath) });
 
   rl.on("line", (line) => {
+    if (line.length === 0) return;
+
     const parts = line.split("|") as [
       date: number,
       author: string,
