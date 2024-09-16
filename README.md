@@ -27,4 +27,5 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
 
 - `--since` - Similar to git's `--since` parameter, only look at logs from that date. Accepts date formats or "7 days ago" style natural language.
 - `--consolidate-before` - Squash any commits before this date into a single "initial commit". Helps pre-populate gource with a file tree based on previous work.
+- `--fake-initial-commit` - If you hide root directory connections in gource, and there is one repo that has logs before any others, it will change what it thinks of as a "root" directory when the others show up. This option helps mitigate that.
 - Pipe output to a file instead of directly to Gource - You can then run `gource /path/to/file.log` to see the visualization.

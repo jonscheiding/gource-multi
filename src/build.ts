@@ -121,6 +121,11 @@ const program = new Command()
     "-i, --consolidate-before <date>",
     "Consolidate all commits before <date> to a single 'Initial' commit",
     parseDateArgument,
+  )
+  .option(
+    "--fake-initial-commit",
+    "Create a fake initial commit for each repository; " +
+      "helpful if you are hiding root directory connections in Gource",
   );
 
 async function index(opts: ReturnType<typeof program.opts>) {
@@ -159,6 +164,15 @@ async function index(opts: ReturnType<typeof program.opts>) {
       process.exit(0);
     }
   });
+
+  if (allLogs.length === 0) return;
+
+  if (opts.fakeInitialCommit) {
+    const [initialTimestamp] = allLogs[0].split("|");
+    for (const config of configs) {
+      console.log(`${initialTimestamp}|Initial|A|/${config.label}/.`);
+    }
+  }
 
   for (const log of allLogs) {
     console.log(log);
