@@ -7,13 +7,15 @@
     "url": "https://github.com/jonscheiding"
   },
   "scripts": {
-    "build": "tsc && npx tsx src/build.ts",
+    "log": "tsc && npx tsx src/build.ts",
     "lint": "prettier -c src && eslint src",
     "prepare": "husky"
   },
   "license": "MIT",
   "dependencies": {
     "child-process-promise": "^2.2.1",
+    "chrono-node": "^2.7.7",
+    "commander": "^12.1.0",
     "date-fns": "^4.0.0",
     "eslint": "^9.13.0",
     "eslint-plugin-import": "^2.31.0",
@@ -26,6 +28,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@commander-js/extra-typings": "^12.1.0",
     "@eslint/js": "^9.13.0",
     "@types/child-process-promise": "^2",
     "@types/ini": "^4.1.1",

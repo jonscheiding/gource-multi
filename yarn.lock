@@ -5,6 +5,15 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
+"@commander-js/extra-typings@npm:^12.1.0":
+  version: 12.1.0
+  resolution: "@commander-js/extra-typings@npm:12.1.0"
+  peerDependencies:
+    commander: ~12.1.0
+  checksum: 10c0/5d29eaa724b577e2a52a393ad54992924d2559931b8e493ab892477b7a4e878e475c6bf771260f8585d835f7d8e17ae4a2656c191e9595d210ae0b48291c0b3d
+  languageName: node
+  linkType: hard
+
 "@esbuild/aix-ppc64@npm:0.23.1":
   version: 0.23.1
   resolution: "@esbuild/aix-ppc64@npm:0.23.1"
@@ -827,6 +836,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chrono-node@npm:^2.7.7":
+  version: 2.7.7
+  resolution: "chrono-node@npm:2.7.7"
+  dependencies:
+    dayjs: "npm:^1.10.0"
+  checksum: 10c0/25f95a42e7a60926c086a282a3e47dc77c2efee88704c3131a737df884e80197b0245f38799af8db1bbd1c953c52b4b10c6b654d8c1c43b47b272687a7c48ffa
+  languageName: node
+  linkType: hard
+
 "clean-stack@npm:^2.0.0":
   version: 2.2.0
   resolution: "clean-stack@npm:2.2.0"
@@ -876,7 +894,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:~12.1.0":
+"commander@npm:^12.1.0, commander@npm:~12.1.0":
   version: 12.1.0
   resolution: "commander@npm:12.1.0"
   checksum: 10c0/6e1996680c083b3b897bfc1cfe1c58dfbcd9842fd43e1aaf8a795fbc237f65efcc860a3ef457b318e73f29a4f4a28f6403c3d653d021d960e4632dd45bde54a9
@@ -948,6 +966,13 @@ __metadata:
   version: 4.0.0
   resolution: "date-fns@npm:4.0.0"
   checksum: 10c0/c706d29f05c28fdaea939068d688489bbc3096ef2486d1fe4a56d209c3a061ba99febae943b9562bb8ac08fe61257cf11fe74adad164adb7ba6df994e09cb99b
+  languageName: node
+  linkType: hard
+
+"dayjs@npm:^1.10.0":
+  version: 1.11.13
+  resolution: "dayjs@npm:1.11.13"
+  checksum: 10c0/a3caf6ac8363c7dade9d1ee797848ddcf25c1ace68d9fe8678ecf8ba0675825430de5d793672ec87b24a69bf04a1544b176547b2539982275d5542a7955f35b7
   languageName: node
   linkType: hard
 
@@ -1756,11 +1781,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "gource-multi@workspace:."
   dependencies:
+    "@commander-js/extra-typings": "npm:^12.1.0"
     "@eslint/js": "npm:^9.13.0"
     "@types/child-process-promise": "npm:^2"
     "@types/ini": "npm:^4.1.1"
     "@types/node": "npm:^22.7.7"
     child-process-promise: "npm:^2.2.1"
+    chrono-node: "npm:^2.7.7"
+    commander: "npm:^12.1.0"
     date-fns: "npm:^4.0.0"
     eslint: "npm:^9.13.0"
     eslint-plugin-import: "npm:^2.31.0"

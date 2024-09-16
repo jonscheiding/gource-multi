@@ -1,12 +1,15 @@
 import { createReadStream } from "fs";
-import { readFile, writeFile } from "fs/promises";
+import { readFile } from "fs/promises";
 import { basename, dirname, resolve } from "path";
 import { createInterface } from "readline";
 import { fileURLToPath } from "url";
 
 import { exec } from "child-process-promise";
+import { parseDate } from "chrono-node";
 import { format } from "date-fns";
 import z from "zod";
+
+import { Command } from "@commander-js/extra-typings";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -37,7 +40,7 @@ async function logRepo(
 async function readAndProcessLogs(
   logPath: string,
   label: string,
-  initialTimestamp: number,
+  initialTimestamp: number | undefined,
 ) {
   const initialFiles = new Set<string>();
   const lines: string[] = [];
@@ -54,11 +57,14 @@ async function readAndProcessLogs(
 
     parts[3] = `/${label}${parts[3]}`;
 
-    if (parts[0] < initialTimestamp) {
+    if (initialTimestamp && parts[0] < initialTimestamp / 1000) {
       if (initialFiles.has(parts[3])) return;
       initialFiles.add(parts[3]);
 
-      parts[0] = initialTimestamp - 100 * 86400;
+      //
+      // Arbitrarily put the "initial commit" 100 days before the first real one
+      //
+      parts[0] = initialTimestamp / 1000 - 8640000;
       parts[1] = "Initial";
     }
 
@@ -72,7 +78,31 @@ async function readAndProcessLogs(
   return lines;
 }
 
-async function index() {
+function parseDateArgument(value: string) {
+  const date = parseDate(value);
+  if (date == null) {
+    throw new Error(`Invalid date: ${value}`);
+  }
+  return date.getTime();
+}
+
+const program = new Command()
+  .requiredOption(
+    "-c, --config <file>",
+    "Use repository list from the provided file",
+  )
+  .option(
+    "-s, --since <date>",
+    "Only include logs after <date>",
+    parseDateArgument,
+  )
+  .option(
+    "-i, --consolidate-before <date>",
+    "Consolidate all commits before <date> to a single 'Initial' commit",
+    parseDateArgument,
+  );
+
+async function index(opts: ReturnType<typeof program.opts>) {
   const configPath = resolve(__dirname, "../.data/repos.json");
 
   const configs = await readFile(configPath)
@@ -91,18 +121,27 @@ async function index() {
   await Promise.all(
     configs.map(async ({ repoPath, label }) => {
       const logPath = resolve(__dirname, `../.data/${label}.log`);
-      await logRepo(repoPath, logPath, Date.now() - 86400 * 7 * 1000);
-      const logs = await readAndProcessLogs(logPath, label, 1725897448);
+      await logRepo(repoPath, logPath, opts.since);
+      const logs = await readAndProcessLogs(
+        logPath,
+        label,
+        opts.consolidateBefore,
+      );
       allLogs.push(...logs);
     }),
   );
 
   allLogs.sort();
 
-  await writeFile(
-    resolve(__dirname, "../.data/consolidated.log"),
-    allLogs.join("\n"),
-  );
+  process.stdout.on("error", function (err) {
+    if (err.code == "EPIPE") {
+      process.exit(0);
+    }
+  });
+
+  for (const log of allLogs) {
+    console.log(log);
+  }
 }
 
-await index();
+await index(program.parse().opts());
