@@ -13,13 +13,43 @@ import { Command } from "@commander-js/extra-typings";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const configSchema = z.array(
-  z.object({
-    repoPath: z.string(),
-    label: z.string().optional(),
-    ref: z.string().optional(),
-  }),
-);
+const program = new Command()
+  .requiredOption(
+    "-c, --config <file>",
+    "Use repository list from the provided file",
+  )
+  .option(
+    "-s, --since <date>",
+    "Only include logs after <date>",
+    parseDateArgument,
+  )
+  .option(
+    "-i, --consolidate-before <date>",
+    "Consolidate all commits before <date> to a single 'Initial' commit",
+    parseDateArgument,
+  )
+  .option(
+    "--fake-initial-commit",
+    "Create a fake initial commit for each repository; " +
+      "helpful if you are hiding root directory connections in Gource",
+  );
+
+const configSchema = z.object({
+  repos: z.array(
+    z.object({
+      repoPath: z.string(),
+      label: z.string().optional(),
+      ref: z.string().optional(),
+    }),
+  ),
+  options: z
+    .object({
+      since: z.string().optional(),
+      consolidateBefore: z.string().optional(),
+      fakeInitialCommit: z.boolean().optional(),
+    })
+    .optional(),
+});
 
 async function logRepo(
   repoPath: string,
@@ -108,7 +138,9 @@ async function readAndProcessLogs(
   return lines;
 }
 
-function parseDateArgument(value: string) {
+function parseDateArgument(value: string | undefined) {
+  if (value == null) return;
+
   const date = parseDate(value);
   if (date == null) {
     throw new Error(`Invalid date: ${value}`);
@@ -116,46 +148,31 @@ function parseDateArgument(value: string) {
   return date.getTime();
 }
 
-const program = new Command()
-  .requiredOption(
-    "-c, --config <file>",
-    "Use repository list from the provided file",
-  )
-  .option(
-    "-s, --since <date>",
-    "Only include logs after <date>",
-    parseDateArgument,
-  )
-  .option(
-    "-i, --consolidate-before <date>",
-    "Consolidate all commits before <date> to a single 'Initial' commit",
-    parseDateArgument,
-  )
-  .option(
-    "--fake-initial-commit",
-    "Create a fake initial commit for each repository; " +
-      "helpful if you are hiding root directory connections in Gource",
-  );
-
 async function index(opts: ReturnType<typeof program.opts>) {
   const configPath = resolve(__dirname, "../.data/repos.json");
 
-  const configs = await readFile(configPath)
+  const config = await readFile(configPath)
     .then((r) => r.toString())
     .then(JSON.parse)
-    .then(configSchema.parseAsync)
-    .then((configs) =>
-      configs.map((config) => ({
-        repoPath: resolve(dirname(configPath), config.repoPath),
-        label: config.label ?? basename(config.repoPath),
-        ref: config.ref,
-      })),
-    );
+    .then(configSchema.parseAsync);
+
+  const repos = config.repos.map((repo) => ({
+    repoPath: resolve(dirname(configPath), repo.repoPath),
+    label: repo.label ?? basename(repo.repoPath),
+    ref: repo.ref,
+  }));
+
+  opts = {
+    since: parseDateArgument(config.options?.since),
+    consolidateBefore: parseDateArgument(config.options?.consolidateBefore),
+    fakeInitialCommit: config.options?.fakeInitialCommit ? true : undefined,
+    ...opts,
+  };
 
   const allLogs: string[] = [];
 
   await Promise.all(
-    configs.map(async ({ repoPath, label, ref }) => {
+    repos.map(async ({ repoPath, label, ref }) => {
       const logPath = resolve(__dirname, `../.data/${label}.log`);
       try {
         await logRepo(repoPath, logPath, ref, opts.since);
@@ -184,8 +201,8 @@ async function index(opts: ReturnType<typeof program.opts>) {
 
   if (opts.fakeInitialCommit) {
     const [initialTimestamp] = allLogs[0].split("|");
-    for (const config of configs) {
-      console.log(`${initialTimestamp}|Initial|A|/${config.label}/.`);
+    for (const repo of repos) {
+      console.log(`${initialTimestamp}|Initial|A|/${repo.label}/.`);
     }
   }
 

@@ -7,16 +7,18 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
 1.  Clone the repo and running `yarn install`
 2.  Create a configuration file listing which repositories you want to include.
 
-        [
-          {
-            "repoPath": "~/Code/repository-1",
-            "prefix": "repos1"
-          },
-          {
-            "repoPath": "~/Code/repository-2",
-            "prefix": "repos2"
-          }
-        ]
+        {
+          "repos": [
+            {
+              "repoPath": "~/Code/repository-1",
+              "prefix": "repos1"
+            },
+            {
+              "repoPath": "~/Code/repository-2",
+              "prefix": "repos2"
+            }
+          ]
+        }
 
 3.  Run
 
