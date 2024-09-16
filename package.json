@@ -1,0 +1,14 @@
+{
+  "name": "gource-multi",
+  "packageManager": "yarn@4.5.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc && npx tsx index.ts"
+  },
+  "dependencies": {
+    "typescript": "^5.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.5"
+  }
+}
