@@ -16,18 +16,24 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const configSchema = z.array(
   z.object({
     repoPath: z.string(),
-    label: z.string().nullish(),
+    label: z.string().optional(),
+    ref: z.string().optional(),
   }),
 );
 
 async function logRepo(
   repoPath: string,
   logPath: string,
+  ref: string | undefined,
   startTimestamp: number | undefined,
 ) {
   const startDate = startTimestamp
     ? format(startTimestamp, "yyyy-LL-dd")
     : undefined;
+
+  if (ref != null) {
+    await exec(`git fetch --all`, { cwd: repoPath });
+  }
 
   if (startDate) {
     //
@@ -35,7 +41,7 @@ async function logRepo(
     // so we have to check first
     //
     const { stdout: gitLogs } = await exec(
-      `git log --since ${startDate} --pretty=oneline -1`,
+      `git log --since ${startDate} --pretty=oneline -1 ${ref ?? ""}`,
       {
         cwd: repoPath,
       },
@@ -46,14 +52,17 @@ async function logRepo(
     }
   }
 
-  await exec(
-    `gource ${
-      startDate ? `--start-date ${startDate}` : ""
-    } --output-custom-log ${logPath}`,
-    {
-      cwd: repoPath,
-    },
-  );
+  const gourceArgs: string[] = [];
+  if (startDate != null) {
+    gourceArgs.push(`--start-date ${startDate}`);
+  }
+  if (ref != null) {
+    gourceArgs.push(`--git-branch ${ref}`);
+  }
+
+  await exec(`gource ${gourceArgs.join(" ")} --output-custom-log ${logPath}`, {
+    cwd: repoPath,
+  });
 }
 
 async function readAndProcessLogs(
@@ -139,21 +148,27 @@ async function index(opts: ReturnType<typeof program.opts>) {
       configs.map((config) => ({
         repoPath: resolve(dirname(configPath), config.repoPath),
         label: config.label ?? basename(config.repoPath),
+        ref: config.ref,
       })),
     );
 
   const allLogs: string[] = [];
 
   await Promise.all(
-    configs.map(async ({ repoPath, label }) => {
+    configs.map(async ({ repoPath, label, ref }) => {
       const logPath = resolve(__dirname, `../.data/${label}.log`);
-      await logRepo(repoPath, logPath, opts.since);
-      const logs = await readAndProcessLogs(
-        logPath,
-        label,
-        opts.consolidateBefore,
-      );
-      allLogs.push(...logs);
+      try {
+        await logRepo(repoPath, logPath, ref, opts.since);
+        const logs = await readAndProcessLogs(
+          logPath,
+          label,
+          opts.consolidateBefore,
+        );
+        allLogs.push(...logs);
+      } catch (e) {
+        console.error(e);
+        throw new Error(`Error processing ${label}`);
+      }
     }),
   );
 
