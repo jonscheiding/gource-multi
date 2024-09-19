@@ -3,7 +3,8 @@
   "packageManager": "yarn@4.5.0",
   "type": "module",
   "scripts": {
-    "log": "tsc && npx tsx build.ts"
+    "log": "tsc && npx tsx build.ts",
+    "start": "yarn log -c ./.build/repos.json | gource --load-config ./.build/gource.conf -"
   },
   "dependencies": {
     "child-process-promise": "^2.2.1",
