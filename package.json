@@ -9,7 +9,8 @@
   "scripts": {
     "log": "tsc && npx tsx src/build.ts",
     "lint": "prettier -c src && eslint src",
-    "prepare": "husky"
+    "prepare": "husky",
+    "start": "yarn log -c ./.data/repos.json | gource --load-config ./.data/gource.conf -"
   },
   "license": "MIT",
   "dependencies": {

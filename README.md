@@ -25,7 +25,7 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
         yarn log -c /path/to/repo/config.json \
           | gource --log-format custom -
 
-### Additional Options
+## Advanced Usage
 
 - `--since` - Similar to git's `--since` parameter, only look at logs from that date. Accepts date formats or "7 days ago" style natural language.
 - `--consolidate-before` - Squash any commits before this date into a single "initial commit". Helps pre-populate gource with a file tree based on previous work.
@@ -58,3 +58,5 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
           }
         ]
       }
+
+- Run `yarn start`. This will assume that in the [.data](.data) directory there is a `repos.json` and a `gource.conf` (which can be generated with `gource --save-config`), and run using the configuration provided in those files.
