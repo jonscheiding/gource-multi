@@ -1,0 +1,4 @@
+[gource]
+hide=dirnames,filenames,root
+log-format=custom
+path=-

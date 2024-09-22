@@ -1,6 +1,6 @@
 import { createReadStream } from "fs";
 import { readFile, writeFile } from "fs/promises";
-import { basename, dirname, resolve } from "path";
+import { basename, dirname, join, resolve } from "path";
 import { createInterface } from "readline";
 import { fileURLToPath } from "url";
 
@@ -15,7 +15,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const program = new Command()
   .requiredOption(
     "-c, --config <file>",
-    "Use repository list from the provided file"
+    "Use repository list from the provided file."
+  )
+  .option(
+    "-w, --work-dir <dir>",
+    "Place temporary log files in <dir>. Defaults to ./.work .",
+    resolve(__dirname, ".work")
   )
   .option(
     "-s, --since <date>",
@@ -24,13 +29,13 @@ const program = new Command()
   )
   .option(
     "-i, --consolidate-before <date>",
-    "Consolidate all commits before <date> to a single 'Initial' commit",
+    "Consolidate all commits before <date> to a single 'Initial' commit.",
     parseDateArgument
   )
   .option(
     "--fake-initial-commit",
     "Create a fake initial commit for each repository; " +
-      "helpful if you are hiding root directory connections in Gource"
+      "helpful if you are hiding root directory connections in Gource."
   );
 
 const configSchema = z.object({
@@ -148,7 +153,8 @@ function parseDateArgument(value: string | undefined) {
 }
 
 async function index(opts: ReturnType<typeof program.opts>) {
-  const configPath = resolve(__dirname, "./.build/repos.json");
+  const configPath = resolve(process.cwd(), opts.config);
+  const workDir = resolve(process.cwd(), opts.workDir);
 
   const config = await readFile(configPath)
     .then((r) => r.toString())
@@ -156,9 +162,9 @@ async function index(opts: ReturnType<typeof program.opts>) {
     .then(configSchema.parseAsync);
 
   const repos = config.repos.map((repo) => ({
+    ...repo,
     repoPath: resolve(dirname(configPath), repo.repoPath),
     label: repo.label ?? basename(repo.repoPath),
-    ref: repo.ref,
   }));
 
   opts = {
@@ -172,7 +178,7 @@ async function index(opts: ReturnType<typeof program.opts>) {
 
   await Promise.all(
     repos.map(async ({ repoPath, label, ref }) => {
-      const logPath = resolve(__dirname, `./.build/${label}.log`);
+      const logPath = join(workDir, `${label}.log`);
       try {
         await logRepo(repoPath, logPath, ref, opts.since);
         const logs = await readAndProcessLogs(

@@ -22,7 +22,7 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
 
 3.  Run
 
-        yarn log -c /path/to/repo/config.json \
+        yarn build -c /path/to/repo/config.json \
           | gource --log-format custom -
 
 ## Advanced Usage
@@ -59,4 +59,4 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
         ]
       }
 
-- Run `yarn start`. This will assume that in the [.build](.build) directory there is a `repos.json` and a `gource.conf` (which can be generated with `gource --save-config`), and run using the configuration provided in those files.
+- Run `yarn start`. This will assume that in the [.work](.work) directory there is a `repos.json` and a `gource.conf` (which can be generated with `gource --save-config`), and run using the configuration provided in those files.
