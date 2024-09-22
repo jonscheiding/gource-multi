@@ -7,10 +7,10 @@
     "url": "https://github.com/jonscheiding"
   },
   "scripts": {
-    "log": "tsc && npx tsx src/build.ts",
+    "build": "tsc && npx tsx src/index.ts",
     "lint": "prettier -c src && eslint src",
     "prepare": "husky",
-    "start": "yarn log -c ./.data/repos.json | gource --load-config ./.data/gource.conf -"
+    "start": "yarn build -c ./.data/repos.json | gource --load-config ./.data/gource.conf"
   },
   "license": "MIT",
   "dependencies": {

@@ -22,7 +22,7 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
 
 3.  Run
 
-        yarn log -c /path/to/repo/config.json \
+        yarn build -c /path/to/repo/config.json \
           | gource --log-format custom -
 
 ## Advanced Usage

@@ -1,0 +1,13 @@
+{
+  "repos": [
+    {
+      "repoPath": "../../repo-1",
+      "label": "repo-1",
+      "ref": "upstream/main"
+    }
+  ],
+  "options": {
+    "since": "7 days ago",
+    "fakeInitialCommit": true
+  }
+}
