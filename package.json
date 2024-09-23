@@ -10,7 +10,8 @@
     "build": "tsc && npx tsx src/index.ts",
     "lint": "prettier -c src && eslint src",
     "prepare": "husky",
-    "start": "yarn build -c ./.data/repos.json | gource --load-config ./.data/gource.conf"
+    "start": "yarn build -c ./.data/repos.json | gource --load-config ./.data/gource.conf",
+    "save": "yarn start -o - | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264"
   },
   "license": "MIT",
   "dependencies": {
