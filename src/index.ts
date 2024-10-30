@@ -56,6 +56,9 @@ const configSchema = z.object({
     .optional(),
 });
 
+type Options = ReturnType<typeof program.opts>;
+type RepoConfig = z.infer<typeof configSchema>["repos"][number];
+
 async function logRepo(
   repoPath: string,
   logPath: string,
@@ -143,43 +146,16 @@ async function readAndProcessLogs(
   return lines;
 }
 
-function parseDateArgument(value: string | undefined) {
-  if (value == null) return;
-
-  const date = parseDate(value);
-  if (date == null) {
-    throw new Error(`Invalid date: ${value}`);
-  }
-  return date.getTime();
-}
-
-async function index(opts: ReturnType<typeof program.opts>) {
-  const configPath = resolve(process.cwd(), opts.config);
-  const workDir = resolve(process.cwd(), opts.workDir);
-
-  const config = await readFile(configPath)
-    .then((r) => r.toString())
-    .then(JSON.parse)
-    .then(configSchema.parseAsync);
-
-  const repos = config.repos.map((repo) => ({
-    ...repo,
-    repoPath: resolve(dirname(configPath), repo.repoPath),
-    label: repo.label ?? basename(repo.repoPath),
-  }));
-
-  opts = {
-    since: parseDateArgument(config.options?.since),
-    consolidateBefore: parseDateArgument(config.options?.consolidateBefore),
-    fakeInitialCommit: config.options?.fakeInitialCommit ? true : undefined,
-    ...opts,
-  };
-
+async function outputLogs(
+  opts: Options,
+  repos: Array<RepoConfig & { label: string }>,
+  writer: (line: string) => void,
+) {
   const allLogs: string[] = [];
 
   await Promise.all(
     repos.map(async ({ repoPath, label, ref }) => {
-      const logPath = join(workDir, `${label}.log`);
+      const logPath = join(opts.workDir, `${label}.log`);
       try {
         await logRepo(repoPath, logPath, ref, opts.since);
         const logs = await readAndProcessLogs(
@@ -208,13 +184,48 @@ async function index(opts: ReturnType<typeof program.opts>) {
   if (opts.fakeInitialCommit) {
     const [initialTimestamp] = allLogs[0].split("|");
     for (const repo of repos) {
-      console.log(`${initialTimestamp}|Initial|A|/${repo.label}/.`);
+      writer(`${initialTimestamp}|Initial|A|/${repo.label}/.`);
     }
   }
 
   for (const log of allLogs) {
-    console.log(log);
+    writer(log);
   }
+}
+
+function parseDateArgument(value: string | undefined) {
+  if (value == null) return;
+
+  const date = parseDate(value);
+  if (date == null) {
+    throw new Error(`Invalid date: ${value}`);
+  }
+  return date.getTime();
+}
+
+async function index(opts: Options) {
+  const configPath = resolve(process.cwd(), opts.config);
+  opts.workDir = resolve(process.cwd(), opts.workDir);
+
+  const config = await readFile(configPath)
+    .then((r) => r.toString())
+    .then(JSON.parse)
+    .then(configSchema.parseAsync);
+
+  const repos = config.repos.map((repo) => ({
+    ...repo,
+    repoPath: resolve(dirname(configPath), repo.repoPath),
+    label: repo.label ?? basename(repo.repoPath),
+  }));
+
+  opts = {
+    since: parseDateArgument(config.options?.since),
+    consolidateBefore: parseDateArgument(config.options?.consolidateBefore),
+    fakeInitialCommit: config.options?.fakeInitialCommit ? true : undefined,
+    ...opts,
+  };
+
+  await outputLogs(opts, repos, console.log);
 }
 
 await index(program.parse().opts());

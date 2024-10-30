@@ -2,15 +2,21 @@
   "name": "gource-multi",
   "packageManager": "yarn@4.5.1",
   "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "gourcem": "./dist/index.js"
+  },
   "author": {
     "name": "Jon Scheiding",
     "url": "https://github.com/jonscheiding"
   },
   "scripts": {
-    "build": "tsc && npx tsx src/index.ts",
-    "lint": "prettier -c src && eslint src",
+    "build": "tsc",
+    "lint": "tsc --noEmit && prettier -c src && eslint src",
     "prepare": "husky",
-    "start": "yarn build -c ./.data/repos.json | gource --load-config ./.data/gource.conf",
+    "start:log": "npx tsx ./src/index.ts",
+    "start:gource": "gource --log-format custom --load-config ./.data/gource.conf",
+    "start": "yarn start:log -c ./.data/repos.json | yarn start:gource",
     "save": "yarn start -o - | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264"
   },
   "license": "MIT",
