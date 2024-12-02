@@ -90,17 +90,24 @@ async function logRepo(
     }
   }
 
-  const gourceArgs: string[] = [];
+  const { stdout: gitCommand } = await exec("gource --log-command git");
+
+  const gitArgs: string[] = [gitCommand.trim()];
+
   if (startDate != null) {
-    gourceArgs.push(`--start-date ${startDate}`);
-  }
-  if (ref != null) {
-    gourceArgs.push(`--git-branch ${ref}`);
+    gitArgs.push(`--since ${startDate}`);
   }
 
-  await exec(`gource ${gourceArgs.join(" ")} --output-custom-log ${logPath}`, {
-    cwd: repoPath,
-  });
+  if (ref != null) {
+    gitArgs.push(ref);
+  }
+
+  await exec(
+    `${gitArgs.join(" ")} | gource --log-format git --output-custom-log ${logPath} -`,
+    {
+      cwd: repoPath,
+    },
+  );
 }
 
 async function readAndProcessLogs(
