@@ -60,30 +60,39 @@ type Options = ReturnType<typeof program.opts>;
 type RepoConfig = z.infer<typeof configSchema>["repos"][number];
 
 async function logRepo(
-  repoPath: string,
-  logPath: string,
-  ref: string | undefined,
+  opts: RepoConfig,
   startTimestamp: number | undefined,
+  logPath: string,
 ) {
   const startDate = startTimestamp
     ? format(startTimestamp, "yyyy-LL-dd")
     : undefined;
 
-  if (ref != null) {
-    await exec(`git fetch --all`, { cwd: repoPath });
+  if (opts.ref != null) {
+    await exec(`git fetch --all`, { cwd: opts.repoPath });
   }
 
-  if (startDate) {
+  const gitArgs: string[] = [];
+
+  if (startDate != null) {
+    gitArgs.push(`--since ${startDate}`);
+  }
+  if (opts.ref != null) {
+    gitArgs.push(opts.ref);
+  }
+
+  if (gitArgs.length > 0) {
     //
-    // Gource throws if there are no logs in the specified timeframe
+    // Gource throws if there are no logs in the output
     // so we have to check first
     //
     const { stdout: gitLogs } = await exec(
-      `git log --since ${startDate} --pretty=oneline -1 ${ref ?? ""}`,
+      `git log ${gitArgs.join(" ")} --pretty=oneline -1 ${opts.ref ?? ""}`,
       {
-        cwd: repoPath,
+        cwd: opts.repoPath,
       },
     );
+
     if (gitLogs.trim() === "") {
       await writeFile(logPath, "");
       return;
@@ -92,20 +101,10 @@ async function logRepo(
 
   const { stdout: gitCommand } = await exec("gource --log-command git");
 
-  const gitArgs: string[] = [gitCommand.trim()];
-
-  if (startDate != null) {
-    gitArgs.push(`--since ${startDate}`);
-  }
-
-  if (ref != null) {
-    gitArgs.push(ref);
-  }
-
   await exec(
-    `${gitArgs.join(" ")} | gource --log-format git --output-custom-log ${logPath} -`,
+    `${gitCommand.trim()} ${gitArgs.join(" ")} | gource --log-format git --output-custom-log ${logPath} -`,
     {
-      cwd: repoPath,
+      cwd: opts.repoPath,
     },
   );
 }
@@ -161,19 +160,19 @@ async function outputLogs(
   const allLogs: string[] = [];
 
   await Promise.all(
-    repos.map(async ({ repoPath, label, ref }) => {
-      const logPath = join(opts.workDir, `${label}.log`);
+    repos.map(async (repo) => {
+      const logPath = join(opts.workDir, `${repo.label}.log`);
       try {
-        await logRepo(repoPath, logPath, ref, opts.since);
+        await logRepo(repo, opts.since, logPath);
         const logs = await readAndProcessLogs(
           logPath,
-          label,
+          repo.label,
           opts.consolidateBefore,
         );
         allLogs.push(...logs);
       } catch (e) {
         console.error(e);
-        throw new Error(`Error processing ${label}`);
+        throw new Error(`Error processing ${repo.label}`);
       }
     }),
   );
