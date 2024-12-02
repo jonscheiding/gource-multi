@@ -59,4 +59,19 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
         ]
       }
 
+- Include a `"filterLogs"` property on the items in your `"repos"` collection to filter by log message:
+
+      {
+        "repos": [
+          {
+            "repoPath": "~/Code/repository-1",
+            "prefix": "repos1",
+            "filterLogs": {
+              "pattern": "publish$",
+              "invert": true
+            }
+          }
+        ]
+      }
+
 - Run `yarn start`. This will assume that in the [.data](.data) directory there is a `repos.json` and a `gource.conf` (which can be generated with `gource --save-config`), and run using the configuration provided in those files.

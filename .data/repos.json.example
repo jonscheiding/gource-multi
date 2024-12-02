@@ -3,7 +3,11 @@
     {
       "repoPath": "../../repo-1",
       "label": "repo-1",
-      "ref": "upstream/main"
+      "ref": "upstream/main",
+      "filterLogs": {
+        "pattern": "publish$",
+        "invert": true
+      }
     }
   ],
   "options": {

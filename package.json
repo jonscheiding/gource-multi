@@ -14,6 +14,7 @@
     "build": "tsc",
     "lint": "tsc --noEmit && prettier -c src && eslint src",
     "prepare": "husky",
+    "start:debug": "npx tsx --inspect ./src/index.ts -c ./.data/repos.json",
     "start:log": "npx tsx ./src/index.ts",
     "start:gource": "gource --log-format custom --load-config ./.data/gource.conf",
     "start": "yarn start:log -c ./.data/repos.json | yarn start:gource",

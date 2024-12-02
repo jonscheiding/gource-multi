@@ -45,6 +45,12 @@ const configSchema = z.object({
       repoPath: z.string(),
       label: z.string().optional(),
       ref: z.string().optional(),
+      filterLogs: z
+        .object({
+          pattern: z.string(),
+          invert: z.boolean().optional(),
+        })
+        .optional(),
     }),
   ),
   options: z
@@ -77,6 +83,14 @@ async function logRepo(
   if (startDate != null) {
     gitArgs.push(`--since ${startDate}`);
   }
+
+  if (opts.filterLogs != null) {
+    gitArgs.push(`--grep "${opts.filterLogs.pattern}"`);
+    if (opts.filterLogs.invert) {
+      gitArgs.push("--invert-grep");
+    }
+  }
+
   if (opts.ref != null) {
     gitArgs.push(opts.ref);
   }
@@ -87,7 +101,7 @@ async function logRepo(
     // so we have to check first
     //
     const { stdout: gitLogs } = await exec(
-      `git log ${gitArgs.join(" ")} --pretty=oneline -1 ${opts.ref ?? ""}`,
+      `git log --pretty=oneline -1 ${gitArgs.join(" ")}`,
       {
         cwd: opts.repoPath,
       },
