@@ -1,3 +1,4 @@
+import { Console } from "console";
 import { createReadStream } from "fs";
 import { readFile, writeFile } from "fs/promises";
 import { basename, dirname, join, resolve } from "path";
@@ -64,12 +65,13 @@ const configSchema = z.object({
 
 type Options = ReturnType<typeof program.opts>;
 type RepoConfig = z.infer<typeof configSchema>["repos"][number];
+type RepoStats = { repo: RepoConfig; count: number };
 
 async function logRepo(
   opts: RepoConfig,
   startTimestamp: number | undefined,
   logPath: string,
-) {
+): Promise<RepoStats> {
   const startDate = startTimestamp
     ? format(startTimestamp, "yyyy-LL-dd")
     : undefined;
@@ -95,32 +97,32 @@ async function logRepo(
     gitArgs.push(opts.ref);
   }
 
-  if (gitArgs.length > 0) {
+  const lineCount = await exec(
+    `git log --pretty=oneline ${gitArgs.join(" ")} | wc -l`,
+    {
+      cwd: opts.repoPath,
+    },
+  ).then(({ stdout }) => Number(stdout.trim()));
+
+  if (lineCount === 0) {
     //
     // Gource throws if there are no logs in the output
     // so we have to check first
     //
-    const { stdout: gitLogs } = await exec(
-      `git log --pretty=oneline -1 ${gitArgs.join(" ")}`,
+
+    await writeFile(logPath, "");
+  } else {
+    const { stdout: gitCommand } = await exec("gource --log-command git");
+
+    await exec(
+      `${gitCommand.trim()} ${gitArgs.join(" ")} | gource --log-format git --output-custom-log ${logPath} -`,
       {
         cwd: opts.repoPath,
       },
     );
-
-    if (gitLogs.trim() === "") {
-      await writeFile(logPath, "");
-      return;
-    }
   }
 
-  const { stdout: gitCommand } = await exec("gource --log-command git");
-
-  await exec(
-    `${gitCommand.trim()} ${gitArgs.join(" ")} | gource --log-format git --output-custom-log ${logPath} -`,
-    {
-      cwd: opts.repoPath,
-    },
-  );
+  return { repo: opts, count: lineCount };
 }
 
 async function readAndProcessLogs(
@@ -170,19 +172,21 @@ async function outputLogs(
   opts: Options,
   repos: Array<RepoConfig & { label: string }>,
   writer: (line: string) => void,
-) {
+): Promise<RepoStats[]> {
   const allLogs: string[] = [];
+  const allStats: RepoStats[] = [];
 
   await Promise.all(
     repos.map(async (repo) => {
       const logPath = join(opts.workDir, `${repo.label}.log`);
       try {
-        await logRepo(repo, opts.since, logPath);
+        const stats = await logRepo(repo, opts.since, logPath);
         const logs = await readAndProcessLogs(
           logPath,
           repo.label,
           opts.consolidateBefore,
         );
+        allStats.push(stats);
         allLogs.push(...logs);
       } catch (e) {
         console.error(e);
@@ -199,7 +203,7 @@ async function outputLogs(
     }
   });
 
-  if (allLogs.length === 0) return;
+  if (allLogs.length === 0) return allStats;
 
   if (opts.fakeInitialCommit) {
     const [initialTimestamp] = allLogs[0].split("|");
@@ -211,6 +215,8 @@ async function outputLogs(
   for (const log of allLogs) {
     writer(log);
   }
+
+  return allStats;
 }
 
 function parseDateArgument(value: string | undefined) {
@@ -245,7 +251,19 @@ async function index(opts: Options) {
     ...opts,
   };
 
-  await outputLogs(opts, repos, console.log);
+  const allStats = await outputLogs(opts, repos, console.log);
+
+  const statsTable = allStats.map((stats) => ({
+    label: stats.repo.label ?? basename(stats.repo.repoPath),
+    count: stats.count,
+  }));
+
+  statsTable.push({
+    label: "TOTAL",
+    count: statsTable.reduce((prev, current) => prev + current.count, 0),
+  });
+
+  new Console(process.stderr).table(statsTable);
 }
 
 await index(program.parse().opts());
