@@ -26,6 +26,7 @@
     "chrono-node": "^2.7.7",
     "commander": "^12.1.0",
     "date-fns": "^4.0.0",
+    "debug": "^4.4.0",
     "eslint": "^9.13.0",
     "eslint-plugin-import": "^2.31.0",
     "husky": "^9.1.6",
@@ -40,6 +41,7 @@
     "@commander-js/extra-typings": "^12.1.0",
     "@eslint/js": "^9.13.0",
     "@types/child-process-promise": "^2",
+    "@types/debug": "^4",
     "@types/ini": "^4.1.1",
     "@types/node": "^22.7.7",
     "globals": "^15.11.0"

@@ -11,8 +11,10 @@ import { format } from "date-fns";
 import z from "zod";
 
 import { Command } from "@commander-js/extra-typings";
+import dbg from "debug";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const debug = dbg.debug("gource-multi");
 
 const program = new Command()
   .requiredOption(
@@ -104,15 +106,21 @@ async function logRepo(
     },
   ).then(({ stdout }) => Number(stdout.trim()));
 
+  debug(`Args for %s: %j`, opts.repoPath, gitArgs);
+
   if (lineCount === 0) {
     //
     // Gource throws if there are no logs in the output
     // so we have to check first
     //
 
+    debug(`No logs found for %s`, opts.repoPath);
+
     await writeFile(logPath, "");
   } else {
     const { stdout: gitCommand } = await exec("gource --log-command git");
+
+    debug(`Log command for %s: $j`, opts.repoPath, gitArgs);
 
     await exec(
       `${gitCommand.trim()} ${gitArgs.join(" ")} | gource --log-format git --output-custom-log ${logPath} -`,
