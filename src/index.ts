@@ -123,7 +123,7 @@ async function logRepo(
     debug(`Log command for %s: $j`, opts.repoPath, gitArgs);
 
     await exec(
-      `${gitCommand.trim()} ${gitArgs.join(" ")} | gource --log-format git --output-custom-log ${logPath} -`,
+      `${gitCommand.trim()} ${gitArgs.join(" ")} | tac | tac | gource --log-format git --output-custom-log ${logPath} -`,
       {
         cwd: opts.repoPath,
       },
