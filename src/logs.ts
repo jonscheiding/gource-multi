@@ -1,58 +1,22 @@
 import { Console } from "console";
 import { createReadStream } from "fs";
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { mkdir, writeFile } from "fs/promises";
 import { tmpdir } from "os";
-import { basename, dirname, join, resolve } from "path";
+import { basename, join, resolve } from "path";
 import { createInterface } from "readline";
 
 import { exec } from "child-process-promise";
-import { parseDate } from "chrono-node";
 import { format } from "date-fns";
-import z from "zod";
 
-import { program } from "@commander-js/extra-typings";
 import dbg from "debug";
+
+import { Options, RepoConfig } from "./config.js";
 
 const debug = dbg.debug("gource-multi");
 
-const configSchema = z.object({
-  repos: z.array(
-    z.object({
-      repoPath: z.string(),
-      label: z.string().optional(),
-      ref: z.string().optional(),
-      filterLogs: z
-        .object({
-          pattern: z.string(),
-          invert: z.boolean().optional(),
-        })
-        .optional(),
-    }),
-  ),
-  options: z
-    .object({
-      since: z.string().optional(),
-      consolidateBefore: z.string().optional(),
-      fakeInitialCommit: z.boolean().optional(),
-      workDir: z.string().optional(),
-      showStats: z.boolean().optional(),
-    })
-    .optional(),
-});
-
-type Options = {
-  since?: number;
-  consolidateBefore?: number;
-  fakeInitialCommit?: boolean;
-  workDir?: string;
-  showStats?: boolean;
-};
-type RepoConfig = z.infer<typeof configSchema>["repos"][number] & {
-  label: string;
-};
 type RepoStats = { repo: RepoConfig; count: number };
 
-const WORK_DIR = resolve(
+export const WORK_DIR = resolve(
   process.cwd(),
   process.env.GOURCE_MULTI_WORK_DIR ?? join(tmpdir(), "gource-multi"),
 );
@@ -215,21 +179,13 @@ async function outputLogs(
   return allStats;
 }
 
-function parseDateArgument(value: string | undefined) {
-  if (value == null) return;
-
-  const date = parseDate(value);
-  if (date == null) {
-    throw new Error(`Invalid date: ${value}`);
-  }
-  return date.getTime();
-}
-
-async function logRepos(
+export async function outputLogsAll(
   repos: RepoConfig[],
   opts: Options,
   writer: (line: string) => void,
 ) {
+  await mkdir(WORK_DIR, { recursive: true });
+
   const allStats = await outputLogs(opts, repos, writer);
 
   if (opts.showStats) {
@@ -246,53 +202,3 @@ async function logRepos(
     new Console(process.stderr).table(statsTable);
   }
 }
-
-program
-  .argument(
-    "[config-file]",
-    "Configuration file containing repository list and options.",
-    resolve(process.cwd(), "gource-multi.json"),
-  )
-  .option(
-    "-s, --since <date>",
-    "Only include logs after <date>",
-    parseDateArgument,
-  )
-  .option(
-    "-i, --consolidate-before <date>",
-    "Consolidate all commits before <date> to a single 'Initial' commit.",
-    parseDateArgument,
-  )
-  .option(
-    "--fake-initial-commit",
-    "Create a fake initial commit for each repository; " +
-      "helpful if you are hiding root directory connections in Gource.",
-  )
-  .option(
-    "--show-stats",
-    "Show a table of the commit counts for each repo, and the total.",
-  )
-  .action(async (configPath, options) => {
-    await mkdir(WORK_DIR, { recursive: true });
-
-    const config = await readFile(configPath)
-      .then((r) => r.toString())
-      .then(JSON.parse)
-      .then(configSchema.parseAsync);
-
-    const repos = config.repos.map((repo) => ({
-      ...repo,
-      repoPath: resolve(dirname(configPath), repo.repoPath),
-      label: repo.label ?? basename(repo.repoPath),
-    }));
-
-    options = {
-      since: parseDateArgument(config.options?.since),
-      consolidateBefore: parseDateArgument(config.options?.consolidateBefore),
-      fakeInitialCommit: config.options?.fakeInitialCommit ? true : undefined,
-      ...options,
-    };
-
-    await logRepos(repos, options, console.log);
-  })
-  .parse();

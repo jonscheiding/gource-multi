@@ -1831,7 +1831,7 @@ __metadata:
     typescript-eslint: "npm:^8.11.0"
     zod: "npm:^3.23.8"
   bin:
-    gourcem: ./dist/index.js
+    gource-multi: ./dist/cli.js
   languageName: unknown
   linkType: soft
 

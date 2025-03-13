@@ -2,10 +2,8 @@
   "name": "gource-multi",
   "packageManager": "yarn@4.5.1",
   "type": "module",
-  "main": "./dist/index.js",
-  "bin": {
-    "gourcem": "./dist/index.js"
-  },
+  "main": "./dist/cli.js",
+  "bin": "./dist/cli.js",
   "author": {
     "name": "Jon Scheiding",
     "url": "https://github.com/jonscheiding"
@@ -14,8 +12,8 @@
     "build": "tsc",
     "lint": "tsc --noEmit && prettier -c src && eslint src",
     "prepare": "husky",
-    "start:debug": "GOURCE_MULTI_WORK_DIR=./.data npx tsx --inspect ./src/index.ts ./.data/repos.json",
-    "start:log": "GOURCE_MULTI_WORK_DIR=./.data npx tsx ./src/index.ts ./.data/repos.json",
+    "start:debug": "GOURCE_MULTI_WORK_DIR=./.data npx tsx --inspect ./src/cli.ts ./.data/repos.json",
+    "start:log": "GOURCE_MULTI_WORK_DIR=./.data npx tsx ./src/cli.ts ./.data/repos.json",
     "start:gource": "gource --log-format custom --load-config ./.data/gource.conf",
     "start": "yarn start:log ./.data/repos.json | yarn start:gource",
     "save": "yarn start -o - | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264"
