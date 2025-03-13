@@ -17,6 +17,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "chalk": "^5.4.1",
     "child-process-promise": "^2.2.1",
     "chrono-node": "^2.7.7",
     "commander": "^12.1.0",

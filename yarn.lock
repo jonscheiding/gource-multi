@@ -827,6 +827,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chalk@npm:^5.4.1":
+  version: 5.4.1
+  resolution: "chalk@npm:5.4.1"
+  checksum: 10c0/b23e88132c702f4855ca6d25cb5538b1114343e41472d5263ee8a37cccfccd9c4216d111e1097c6a27830407a1dc81fecdf2a56f2c63033d4dbbd88c10b0dcef
+  languageName: node
+  linkType: hard
+
 "chalk@npm:~5.3.0":
   version: 5.3.0
   resolution: "chalk@npm:5.3.0"
@@ -1815,6 +1822,7 @@ __metadata:
     "@types/debug": "npm:^4"
     "@types/ini": "npm:^4.1.1"
     "@types/node": "npm:^22.7.7"
+    chalk: "npm:^5.4.1"
     child-process-promise: "npm:^2.2.1"
     chrono-node: "npm:^2.7.7"
     commander: "npm:^12.1.0"
