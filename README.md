@@ -4,7 +4,7 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
 
 ## Basic Usage
 
-1.  Clone the repo and run `yarn install`
+1.  Clone the repo and run `npm install`
 2.  Create a configuration file listing which repositories you want to include.
 
         {
@@ -22,7 +22,7 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
 
 3.  Run
 
-        yarn start
+        npm start
 
 ## Advanced Usage
 

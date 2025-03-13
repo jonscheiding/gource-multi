@@ -1,9 +1,11 @@
 {
   "name": "gource-multi",
-  "packageManager": "yarn@4.5.1",
+  "version": "1.0",
   "type": "module",
   "main": "./dist/cli.js",
-  "bin": "./dist/cli.js",
+  "bin": {
+    "gource-multi": "./dist/cli.js"
+  },
   "author": {
     "name": "Jon Scheiding",
     "url": "https://github.com/jonscheiding"
@@ -11,12 +13,13 @@
   "scripts": {
     "build": "tsc",
     "lint": "tsc --noEmit && prettier -c src && eslint src",
-    "prepare": "husky",
+    "postinstall": "husky",
     "start:debug": "GOURCE_MULTI_WORK_DIR=./.data npx tsx --inspect ./src/cli.ts ./.data/gource-multi.json",
     "start": "GOURCE_MULTI_WORK_DIR=./.data npx tsx ./src/cli.ts ./.data/gource-multi.json"
   },
   "license": "MIT",
   "dependencies": {
+    "@commander-js/extra-typings": "^12.1.0",
     "chalk": "^5.4.1",
     "child-process-promise": "^2.2.1",
     "chrono-node": "^2.7.7",
@@ -34,12 +37,12 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@commander-js/extra-typings": "^12.1.0",
     "@eslint/js": "^9.13.0",
     "@types/child-process-promise": "^2",
     "@types/debug": "^4",
     "@types/ini": "^4.1.1",
     "@types/node": "^22.7.7",
     "globals": "^15.11.0"
-  }
+  },
+  "packageManager": "npm@10.8.2+sha512.c7f0088c520a46596b85c6f8f1da943400199748a0f7ea8cb8df75469668dc26f6fb3ba26df87e2884a5ebe91557292d0f3db7d0929cdb4f14910c3032ac81fb"
 }
