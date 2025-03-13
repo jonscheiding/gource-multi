@@ -39,6 +39,10 @@ export const configSchema = z.object({
       consolidateBefore: z.string().transform(parseDateArgument).optional(),
       fakeInitialCommit: z.boolean().transform(toTrueOrUndefined).optional(),
       showStats: z.boolean().transform(toTrueOrUndefined).optional(),
+      gourceArguments: z.array(z.string()).optional(),
+      ffmpegArguments: z.array(z.string()).optional(),
+      gource: z.boolean().optional().default(true),
+      output: z.string().optional(),
     })
     .optional(),
 });

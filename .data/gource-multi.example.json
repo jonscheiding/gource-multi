@@ -12,6 +12,10 @@
   ],
   "options": {
     "since": "7 days ago",
-    "fakeInitialCommit": true
+    "fakeInitialCommit": true,
+    "showStats": true,
+    "gourceArguments": ["--hide", "dirnames,filenames,root"],
+    "ffmpegArguments": ["-vcodec", "libx264", "-pix_fmt", "yuv420p"],
+    "output": "./.data/gource.mp4"
   }
 }

@@ -5,6 +5,7 @@ import { program } from "@commander-js/extra-typings";
 
 import { configSchema, parseDateArgument } from "./config.js";
 import { outputLogsAll } from "./logs.js";
+import { createOutputPipe } from "./pipe.js";
 
 program
   .argument(
@@ -28,6 +29,14 @@ program
       "helpful if you are hiding root directory connections in Gource.",
   )
   .option(
+    "--no-gource",
+    "Do not launch the gource visualization; just output the logs.",
+  )
+  .option(
+    "-o, --output <file>",
+    "Save the output video (or logs if --no-gource specified) to the specified file.",
+  )
+  .option(
     "--show-stats",
     "Show a table of the commit counts for each repo, and the total.",
   )
@@ -43,11 +52,22 @@ program
       label: repo.label ?? basename(repo.repoPath),
     }));
 
-    options = {
+    const computedOptions = {
       ...config.options,
       ...options,
     };
 
-    await outputLogsAll(repos, options, console.log);
+    const pipe = createOutputPipe(computedOptions);
+    await outputLogsAll(repos, computedOptions, pipe.writer);
+    await pipe.done();
   })
   .parse();
+
+process.on("uncaughtException", (err) => {
+  if ("code" in err && err.code === "EPIPE") {
+    process.exit(0);
+  } else {
+    console.error(err);
+    process.exit(1);
+  }
+});

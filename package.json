@@ -12,11 +12,8 @@
     "build": "tsc",
     "lint": "tsc --noEmit && prettier -c src && eslint src",
     "prepare": "husky",
-    "start:debug": "GOURCE_MULTI_WORK_DIR=./.data npx tsx --inspect ./src/cli.ts ./.data/repos.json",
-    "start:log": "GOURCE_MULTI_WORK_DIR=./.data npx tsx ./src/cli.ts ./.data/repos.json",
-    "start:gource": "gource --log-format custom --load-config ./.data/gource.conf",
-    "start": "yarn start:log ./.data/repos.json | yarn start:gource",
-    "save": "yarn start -o - | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264"
+    "start:debug": "GOURCE_MULTI_WORK_DIR=./.data npx tsx --inspect ./src/cli.ts ./.data/gource-multi.json",
+    "start": "GOURCE_MULTI_WORK_DIR=./.data npx tsx ./src/cli.ts ./.data/gource-multi.json"
   },
   "license": "MIT",
   "dependencies": {

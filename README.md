@@ -4,7 +4,7 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
 
 ## Basic Usage
 
-1.  Clone the repo and running `yarn install`
+1.  Clone the repo and run `yarn install`
 2.  Create a configuration file listing which repositories you want to include.
 
         {
@@ -22,15 +22,16 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
 
 3.  Run
 
-        yarn build -c /path/to/repo/config.json \
-          | gource --log-format custom -
+        yarn start
 
 ## Advanced Usage
 
 - `--since` - Similar to git's `--since` parameter, only look at logs from that date. Accepts date formats or "7 days ago" style natural language.
 - `--consolidate-before` - Squash any commits before this date into a single "initial commit". Helps pre-populate gource with a file tree based on previous work.
 - `--fake-initial-commit` - If you hide root directory connections in gource, and there is one repo that has logs before any others, it will change what it thinks of as a "root" directory when the others show up. This option helps mitigate that.
-- Pipe output to a file instead of directly to Gource - You can then run `gource /path/to/file.log` to see the visualization.
+- `--show-stats` - Output a table showing the number of commits for each repository that is analyzed.
+- `--no-gource` - Output the consolidated raw logs, instead of launching the Gource visualization. (Otherwise, requires gource installed in your PATH.)
+- `--output` - Specify a filename to save the visualization as a video. (Requires ffmpeg installed in your PATH.)
 - Include an object in your config file to provide values for other command-line options:
 
       {
@@ -38,7 +39,9 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
         "options": {
           "since": "7 days ago",
           "consolidateBefore": "2022-01-01",
-          "fakeInitialCommit": true
+          "fakeInitialCommit": true,
+          "showStats": true,
+          "output":
         }
       }
 
@@ -74,4 +77,12 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
         ]
       }
 
-- Run `yarn start`. This will assume that in the [.data](.data) directory there is a `repos.json` and a `gource.conf` (which can be generated with `gource --save-config`), and run using the configuration provided in those files.
+- Include advanced options for gource or ffmpeg in your `"options"` object:
+
+      {
+        "repos": [...],
+        "options": {
+          "gourceArguments": ["--hide", "dirnames,filenames,root"],
+          "ffmpegArguments": ["-vcodec", "libx264", "-pix_fmt", "yuv420p"]
+        }
+      }

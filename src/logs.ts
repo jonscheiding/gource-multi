@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import dbg from "debug";
 
 import { Options, RepoConfig } from "./config.js";
+import { LineWriter } from "./pipe.js";
 
 const debug = dbg.debug("gource-multi");
 
@@ -58,7 +59,7 @@ async function logRepo(
     },
   ).then(({ stdout }) => Number(stdout.trim()));
 
-  debug(`Args for %s: %j`, repo.repoPath, gitArgs);
+  debug(`Args for %s`, repo.repoPath, gitArgs);
 
   if (lineCount === 0) {
     //
@@ -72,7 +73,7 @@ async function logRepo(
   } else {
     const { stdout: gitCommand } = await exec("gource --log-command git");
 
-    debug(`Log command for %s: $j`, repo.repoPath, gitArgs);
+    debug(`Log command for %s`, repo.repoPath, gitArgs);
 
     await exec(
       `${gitCommand.trim()} ${gitArgs.join(" ")} | tac | tac | gource --log-format git --output-custom-log ${logPath} -`,
@@ -131,7 +132,7 @@ async function readAndProcessLogs(
 async function outputLogs(
   opts: Options,
   repos: RepoConfig[],
-  writer: (line: string) => void,
+  writer: LineWriter,
 ): Promise<RepoStats[]> {
   const allLogs: string[] = [];
   const allStats: RepoStats[] = [];
@@ -168,12 +169,12 @@ async function outputLogs(
   if (opts.fakeInitialCommit) {
     const [initialTimestamp] = allLogs[0].split("|");
     for (const repo of repos) {
-      writer(`${initialTimestamp}|Initial|A|/${repo.label}/.`);
+      await writer(`${initialTimestamp}|Initial|A|/${repo.label}/.`);
     }
   }
 
   for (const log of allLogs) {
-    writer(log);
+    await writer(log);
   }
 
   return allStats;
@@ -182,7 +183,7 @@ async function outputLogs(
 export async function outputLogsAll(
   repos: RepoConfig[],
   opts: Options,
-  writer: (line: string) => void,
+  writer: LineWriter,
 ) {
   await mkdir(WORK_DIR, { recursive: true });
 
