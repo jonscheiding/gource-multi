@@ -2,29 +2,33 @@
 
 Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to visualize multiple repos in a single pretty tree.
 
-## Basic Usage
+## Installation
 
-1.  Clone the repo and run `npm install`
-2.  Create a configuration file listing which repositories you want to include.
+```
+$ npm install --global gource-multi
+```
+
+## Usage
+
+1.  Create a JSON configuration file with the following shape:
 
         {
           "repos": [
             {
-              "repoPath": "~/Code/repository-1",
-              "prefix": "repos1"
+              "repoPath": "~/Code/my-repository-1",
+              "label": "my-repository-1",
             },
             {
-              "repoPath": "~/Code/repository-2",
-              "prefix": "repos2"
+              "repoPath": "~/Code/my-repository-2"
             }
           ]
         }
 
-3.  Run
+2.  Run `gource-multi [config-file]`
 
         npm start
 
-## Advanced Usage
+### Advanced Usage
 
 - `--since` - Similar to git's `--since` parameter, only look at logs from that date. Accepts date formats or "7 days ago" style natural language.
 - `--consolidate-before` - Squash any commits before this date into a single "initial commit". Helps pre-populate gource with a file tree based on previous work.
@@ -51,12 +55,12 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
         "repos": [
           {
             "repoPath": "~/Code/repository-1",
-            "prefix": "repos1",
+            "label": "repo1",
             "ref": "upstream/main"
           },
           {
             "repoPath": "~/Code/repository-1",
-            "prefix": "repos1-mybranch",
+            "label": "repo1-mybranch",
             "ref": "my-branch"
           }
         ]
@@ -68,7 +72,7 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
         "repos": [
           {
             "repoPath": "~/Code/repository-1",
-            "prefix": "repos1",
+            "label": "repo1",
             "filterLogs": {
               "pattern": "publish$",
               "invert": true
@@ -86,3 +90,15 @@ Preprocessor that lets you use [Gource](https://github.com/acaudwell/Gource) to 
           "ffmpegArguments": ["-vcodec", "libx264", "-pix_fmt", "yuv420p"]
         }
       }
+
+## Development
+
+1.  Clone the repo and run `npm install`
+2.  Create a `gource-multi.json` file at the repo root (or copy the `gource-multi.example.json`) and customize it with the repos and options you want to work with.
+3.  Run
+
+        npm start
+
+    or
+
+        npm start:debug

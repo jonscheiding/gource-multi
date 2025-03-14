@@ -4,7 +4,7 @@
   "type": "module",
   "main": "./dist/cli.js",
   "bin": {
-    "gource-multi": "./dist/cli.js"
+    "gource-multi": "./cli"
   },
   "author": {
     "name": "Jon Scheiding",
@@ -14,8 +14,8 @@
     "build": "tsc",
     "lint": "tsc --noEmit && prettier -c src && eslint src",
     "postinstall": "husky",
-    "start:debug": "GOURCE_MULTI_WORK_DIR=./.data npx tsx --inspect ./src/cli.ts ./.data/gource-multi.json",
-    "start": "GOURCE_MULTI_WORK_DIR=./.data npx tsx ./src/cli.ts ./.data/gource-multi.json"
+    "start:debug": "GOURCE_MULTI_WORK_DIR=./.data npx tsx --inspect ./src/cli.ts ./gource-multi.json",
+    "start": "GOURCE_MULTI_WORK_DIR=./.data npx tsx ./src/cli.ts ./gource-multi.json"
   },
   "license": "MIT",
   "dependencies": {
