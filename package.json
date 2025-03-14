@@ -4,7 +4,7 @@
   "type": "module",
   "main": "./dist/cli.js",
   "bin": {
-    "gource-multi": "./dist/cli.js"
+    "gource-multi": "./cli"
   },
   "author": {
     "name": "Jon Scheiding",
