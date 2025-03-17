@@ -2,9 +2,8 @@ import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { basename, dirname, resolve } from "path";
 
-import chalk from "chalk";
-
 import { program } from "@commander-js/extra-typings";
+import chalk from "chalk";
 
 import { configSchema, parseDateArgument } from "./config.js";
 import { outputLogsAll } from "./logs.js";

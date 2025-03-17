@@ -1,16 +1,16 @@
 import { Console } from "console";
 import { createReadStream } from "fs";
-import { mkdir, writeFile } from "fs/promises";
+import { mkdir, stat, writeFile } from "fs/promises";
 import { tmpdir } from "os";
 import { basename, join, resolve } from "path";
 import { createInterface } from "readline";
 
+import chalk from "chalk";
 import { exec } from "child-process-promise";
 import { format } from "date-fns";
-
 import dbg from "debug";
 
-import { Options, RepoConfig } from "./config.js";
+import { isFileNotFound, Options, RepoConfig } from "./config.js";
 import { LineWriter } from "./pipe.js";
 
 const debug = dbg.debug("gource-multi");
@@ -27,6 +27,18 @@ async function logRepo(
   startTimestamp: number | undefined,
   logPath: string,
 ): Promise<RepoStats> {
+  try {
+    const fd = await stat(repo.repoPath);
+    if (!fd.isDirectory()) {
+      throw new Error(`Repo path ${repo.repoPath} is not a directory.`);
+    }
+  } catch (e) {
+    if (isFileNotFound(e)) {
+      throw new Error(`Repo path ${repo.repoPath} does not exist.`);
+    }
+    throw e;
+  }
+
   const startDate = startTimestamp
     ? format(startTimestamp, "yyyy-LL-dd")
     : undefined;
@@ -150,8 +162,7 @@ async function outputLogs(
         allStats.push(stats);
         allLogs.push(...logs);
       } catch (e) {
-        console.error(e);
-        throw new Error(`Error processing ${repo.label}`);
+        console.error(`Error processing ${repo.label}.`, chalk.red(e));
       }
     }),
   );

@@ -17,6 +17,12 @@ export function toTrueOrUndefined(value: boolean | undefined) {
   return value ? true : undefined;
 }
 
+export function isFileNotFound(e: unknown): e is Error {
+  if (!(e instanceof Error)) return false;
+  if (!("code" in e)) return false;
+  return e.code === "ENOENT";
+}
+
 export const configSchema = z.object({
   repos: z.array(
     z
