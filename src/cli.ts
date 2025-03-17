@@ -6,7 +6,7 @@ import { program } from "@commander-js/extra-typings";
 import chalk from "chalk";
 
 import { configSchema, parseDateArgument } from "./config.js";
-import { outputLogsAll } from "./logs.js";
+import { outputLogs } from "./logs.js";
 import { createOutputPipe } from "./pipe.js";
 
 program
@@ -61,7 +61,7 @@ program
     };
 
     const pipe = createOutputPipe(computedOptions);
-    await outputLogsAll(repos, computedOptions, pipe.writer);
+    await outputLogs(computedOptions, repos, pipe.writer);
     await pipe.done();
   })
   .parse();

@@ -141,11 +141,13 @@ async function readAndProcessLogs(
   return lines;
 }
 
-async function outputLogs(
+export async function outputLogs(
   opts: Options,
   repos: RepoConfig[],
   writer: LineWriter,
-): Promise<RepoStats[]> {
+): Promise<void> {
+  await mkdir(WORK_DIR, { recursive: true });
+
   const allLogs: string[] = [];
   const allStats: RepoStats[] = [];
 
@@ -167,39 +169,6 @@ async function outputLogs(
     }),
   );
 
-  allLogs.sort();
-
-  process.stdout.on("error", function (err) {
-    if (err.code == "EPIPE") {
-      process.exit(0);
-    }
-  });
-
-  if (allLogs.length === 0) return allStats;
-
-  if (opts.fakeInitialCommit) {
-    const [initialTimestamp] = allLogs[0].split("|");
-    for (const repo of repos) {
-      await writer(`${initialTimestamp}|Initial|A|/${repo.label}/.`);
-    }
-  }
-
-  for (const log of allLogs) {
-    await writer(log);
-  }
-
-  return allStats;
-}
-
-export async function outputLogsAll(
-  repos: RepoConfig[],
-  opts: Options,
-  writer: LineWriter,
-) {
-  await mkdir(WORK_DIR, { recursive: true });
-
-  const allStats = await outputLogs(opts, repos, writer);
-
   if (opts.showStats) {
     const statsTable = allStats.map((stats) => ({
       label: stats.repo.label ?? basename(stats.repo.repoPath),
@@ -212,5 +181,26 @@ export async function outputLogsAll(
     });
 
     new Console(process.stderr).table(statsTable);
+  }
+
+  allLogs.sort();
+
+  process.stdout.on("error", function (err) {
+    if (err.code == "EPIPE") {
+      process.exit(0);
+    }
+  });
+
+  if (allLogs.length === 0) return;
+
+  if (opts.fakeInitialCommit) {
+    const [initialTimestamp] = allLogs[0].split("|");
+    for (const repo of repos) {
+      await writer(`${initialTimestamp}|Initial|A|/${repo.label}/.`);
+    }
+  }
+
+  for (const log of allLogs) {
+    await writer(log);
   }
 }
